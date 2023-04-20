@@ -3,7 +3,7 @@ from xml.dom import minidom
 import typing
 
 
-class SimpleXmlParser(ET):
+class SimpleXmlParser(ET.ElementTree):
     '''
         Derived class from xml.etree.ElementTree.
         Adds some features for easy usage.
@@ -21,7 +21,7 @@ class SimpleXmlParser(ET):
         '''
         node.set(attribute, value)
 
-    def addNode(self, parent: ET.Element, node: str, text: str):
+    def addNode(self, parent: ET.Element, node: ET.Element, text: str):
         '''
             Adds a node to a parent node.
         '''
@@ -54,6 +54,12 @@ class SimpleXmlParser(ET):
             Returns all attributes of a node.
         '''
         return node.attrib
+
+    def getNodeByPath(self, path: str):
+        '''
+            Returns a node by a path.
+        '''
+        return self.root.find(path)
     
     def replaceNodeText(self, node: ET.Element, text: str):
         '''
@@ -61,17 +67,28 @@ class SimpleXmlParser(ET):
         '''
         node.text = text
 
-    def replaceNode(self, node: ET.Element, new_node: ET.Element):
+    def replaceNode(self, root: ET.Element,node: ET.Element, new_node: ET.Element):
         '''
             Replaces a node with a new node.
         '''
-        node.getparent().replace(node, new_node)
+        try:
+            root.remove(node)
+        except Exception as e:
+            print(e)
+            return
+        root.append(new_node)
 
-    def replaceNodeByString(self, node: ET.Element, new_node: str):
+
+    def replaceNodeByString(self, root: ET.Element,node: ET.Element, new_node: str):
         '''
             Replaces a node with a new node.
         '''
-        node.getparent().replace(node, ET.fromstring(new_node))
+        try:
+            root.remove(node)
+        except Exception as e:
+            print(e)
+            return
+        root.append(ET.fromstring(new_node))
     
     def getFormattedXml(self):
         '''
