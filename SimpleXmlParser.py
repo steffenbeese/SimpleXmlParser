@@ -1,32 +1,32 @@
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
-import typing
+import lxml.etree as ET
+import re
 
 
-class SimpleXmlParser(ET.ElementTree):
+class SimpleXmlParser:
     '''
-        Derived class from xml.etree.ElementTree.
-        Adds some features for easy usage.
+        Adds some features for easy usage for lxml etree.
     '''
     
     def __init__(self, xml_file: str, encoding: str='utf-8'):
         self.xml_file = xml_file
         self.encoding = encoding
-        self.tree = ET.parse(self.xml_file)
+        parser = ET.XMLParser(remove_blank_text=True, remove_comments=False)
+        self.tree = ET.parse(self.xml_file,parser)
         self.root = self.tree.getroot()
 
-    def addAttribute(self, node: ET.Element, attribute: str, value: str):
+    def addAttribute(self, node: ET.Element, attribute: str, value: str, path: str=""):
         '''
             Adds an attribute to a node.
         '''
+        if node is None and path != "":
+            node = self.getNodeByPath(path)
         node.set(attribute, value)
 
-    def addNode(self, parent: ET.Element, node: ET.Element, text: str):
+    def addNode(self, parent: ET.Element, node: ET.Element):
         '''
             Adds a node to a parent node.
         '''
-        child = ET.SubElement(parent, node)
-        child.text = text
+        parent.append(node)
 
     def addNodeWithAttributes(self, parent: ET.Element, node: str, text: str, attributes: dict):
         '''
@@ -61,10 +61,12 @@ class SimpleXmlParser(ET.ElementTree):
         '''
         return self.root.find(path)
     
-    def replaceNodeText(self, node: ET.Element, text: str):
+    def replaceNodeText(self, node: ET.Element=None, text: str="", path: str=""):
         '''
             Replaces the text of a node.
         '''
+        if node is None and path != "":
+            node = self.getNodeByPath(path)
         node.text = text
 
     def replaceNode(self, root: ET.Element,node: ET.Element, new_node: ET.Element):
@@ -94,7 +96,9 @@ class SimpleXmlParser(ET.ElementTree):
         '''
             Returns the formatted xml.
         '''
-        return minidom.parseString(ET.tostring(self.root, encoding=self.encoding)).toprettyxml(indent="    ")
+        parser = ET.XMLParser(remove_blank_text=True)
+        treestring=ET.tostring(self.root, pretty_print=True, encoding=str)
+        return ET.tostring(ET.fromstring(re.sub(r'(\n *)+', r'\n', treestring),parser), pretty_print=True, encoding=str)
     
     def writeFormattedXml(self, xml_file: str):
         '''

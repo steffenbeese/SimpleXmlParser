@@ -1,7 +1,7 @@
 import unittest
-from xml.etree.ElementTree import Element, SubElement
+from lxml.etree import Element, SubElement
 from unittest.mock import mock_open
-import xml.etree.ElementTree as ET
+import lxml.etree as ET
 from xml.dom import minidom
 
 
@@ -25,7 +25,8 @@ class TestSimpleXmlParser(unittest.TestCase):
 
     def test_addNode(self):
         test_parent = self.xml_parser.getNodeByPath('./media/medium[2]/phases/phase[2]/properties')
-        self.xml_parser.addNode(test_parent, 'test_Property', 'test_value')
+        node = ET.fromstring('<test_Property>test_value</test_Property>')
+        self.xml_parser.addNode(test_parent, node)
         test_node = test_parent.find('test_Property')
         self.assertIsNotNone(test_node)
         self.assertEqual(test_node.text, 'test_value')
@@ -58,12 +59,14 @@ class TestSimpleXmlParser(unittest.TestCase):
         self.assertEqual(attribute_value, 'test_value')
 
     def test_getAttributes(self):
-        test_node = Element('test_node', {'test_attribute_1': 'test_value_1', 'test_attribute_2': 'test_value_2'})
-        attributes_dict = self.xml_parser.getAttributes(test_node)
-        self.assertIsInstance(attributes_dict, dict)
-        self.assertEqual(len(attributes_dict), 2)
-        self.assertEqual(attributes_dict['test_attribute_1'], 'test_value_1')
-        self.assertEqual(attributes_dict['test_attribute_2'], 'test_value_2')
+        test_parent = self.xml_parser.getNodeByPath('./media/medium[2]/phases/phase[2]/properties')
+        self.xml_parser.addNodeByString(test_parent, ''' <test_node test_attribute_1='test_value_1' test_attribute_2='test_value_2'>testtext</test_node> ''')
+        test_node = test_parent.find('test_node')
+        attributes_keys = test_node.keys()
+        self.assertIsInstance(attributes_keys, list)
+        self.assertEqual(len(attributes_keys), 2)
+        self.assertEqual(test_node.get('test_attribute_1'), 'test_value_1')
+        self.assertEqual(test_node.get('test_attribute_2'), 'test_value_2')
 
     def test_replaceNodeText(self):
         test_node = Element('test_node')
@@ -98,4 +101,5 @@ class TestSimpleXmlParser(unittest.TestCase):
     
     def test_writeXml(self):
         xml_file_path = 'SampleXml.xml'
+        self.test_getAttributes()
         self.xml_parser.writeFormattedXml(os.path.join('test','SampleXml.xml'))

@@ -1,1536 +1,553 @@
-<?xml version="1.0" ?>
 <OpenGeoSysProject>
-    
-    
-    <mesh axially_symmetric="true">t5_MGR23_coarse.vtu</mesh>
-    
-    
-    <geometry>t5_MGR23.gml</geometry>
-    
-    
+  <mesh axially_symmetric="true">t5_MGR23_coarse.vtu</mesh>
+  <geometry>t5_MGR23.gml</geometry>
+  <processes>
+    <process>
+      <name>RM</name>
+      <type>RICHARDS_MECHANICS</type>
+      <integration_order>4</integration_order>
+      <dimension>2</dimension>
+      <secondary_variables>
+        <secondary_variable type="static" internal_name="sigma" output_name="sigma"/>
+        <secondary_variable type="static" internal_name="epsilon" output_name="epsilon"/>
+        <secondary_variable type="static" internal_name="velocity" output_name="velocity"/>
+        <secondary_variable type="static" internal_name="ElasticStrain" output_name="ElasticStrain"/>
+        <secondary_variable type="static" internal_name="EquivalentPlasticStrain" output_name="EquivalentPlasticStrain"/>
+        <secondary_variable type="static" internal_name="saturation" output_name="saturation"/>
+        <secondary_variable internal_name="porosity" output_name="porosity"/>
+        <secondary_variable internal_name="transport_porosity" output_name="transport_porosity"/>
+        <secondary_variable internal_name="dry_density_solid" output_name="dry_density_solid"/>
+        <secondary_variable internal_name="swelling_stress" output_name="swelling_stress"/>
+      </secondary_variables>
+      <constitutive_relation id="0">
+        <type>MFront</type>
+        <behaviour>MohrCoulombAbboSloan</behaviour>
+        <material_properties>
+          <material_property name="YoungModulus" parameter="YoungModulus0"/>
+          <material_property name="PoissonRatio" parameter="PoissonRatio0"/>
+          <material_property name="Cohesion" parameter="Cohesion0"/>
+          <material_property name="FrictionAngle" parameter="FrictionAngle"/>
+          <material_property name="DilatancyAngle" parameter="DilatancyAngle"/>
+          <material_property name="TransitionAngle" parameter="TransitionAngle"/>
+          <material_property name="TensionCutOffParameter" parameter="TensionCutOffParameter"/>
+        </material_properties>
+      </constitutive_relation>
+      <constitutive_relation id="1">
+        <type>MFront</type>
+        <behaviour>MohrCoulombAbboSloan</behaviour>
+        <material_properties>
+          <material_property name="YoungModulus" parameter="YoungModulus1"/>
+          <material_property name="PoissonRatio" parameter="PoissonRatio1"/>
+          <material_property name="Cohesion" parameter="Cohesion1"/>
+          <material_property name="FrictionAngle" parameter="FrictionAngle"/>
+          <material_property name="DilatancyAngle" parameter="DilatancyAngle"/>
+          <material_property name="TransitionAngle" parameter="TransitionAngle"/>
+          <material_property name="TensionCutOffParameter" parameter="TensionCutOffParameter"/>
+        </material_properties>
+      </constitutive_relation>
+      <process_variables>
+        <pressure>pressure</pressure>
+        <displacement>displacement</displacement>
+      </process_variables>
+      <specific_body_force>0 0</specific_body_force>
+      <initial_stress>sigma0</initial_stress>
+      <mass_lumping>true</mass_lumping>
+    </process>
+  </processes>
+  <media>
+    <medium id="0">
+      <phases>
+        <phase>
+          <type>AqueousLiquid</type>
+          <properties>
+            <property>
+              <name>bulk_modulus</name>
+              <type>Constant</type>
+              <value>1e9</value>
+            </property>
+            <property>
+              <name>density</name>
+              <type>Constant</type>
+              <value>1e3</value>
+            </property>
+            <property>
+              <name>viscosity</name>
+              <type>Constant</type>
+              <value>1e-3</value>
+            </property>
+          </properties>
+        </phase>
+        <phase>
+          <type>Solid</type>
+          <properties>
+            <property>
+              <name>density</name>
+              <type>Constant</type>
+              <value>2127.27</value>
+            </property>
+            <property>
+              <name>biot_coefficient</name>
+              <type>Constant</type>
+              <value>0.8</value>
+              <!-- 11/12 = 0.91666666666666666667-->
+            </property>
+            <!--
+<property>
+<name>permeability</name>
+<type>Constant</type>
+<value>3e-18</value>
+</property> -->
+            <property>
+              <name>permeability</name>
+              <type>PermeabilityOrthotropicPowerLaw</type>
+              <intrinsic_permeabilities>1e-18 1e-18</intrinsic_permeabilities>
+              <exponents>10 10</exponents>
+            </property>
+            <property>
+              <name>porosity</name>
+              <type>PorosityFromMassBalance</type>
+              <initial_porosity>phi00</initial_porosity>
+              <minimal_porosity>0</minimal_porosity>
+              <maximal_porosity>1</maximal_porosity>
+            </property>
+            <property>
+              <name>transport_porosity</name>
+              <type>TransportPorosityFromMassBalance</type>
+              <initial_porosity>phi_tr00</initial_porosity>
+              <minimal_porosity>0</minimal_porosity>
+              <maximal_porosity>1</maximal_porosity>
+            </property>
+            <property>
+              <name>swelling_stress_rate</name>
+              <type>SaturationDependentSwelling</type>
+              <swelling_pressures>1.8e6 1.8e6 1.8e6</swelling_pressures>
+              <exponents>1 1.0 1</exponents>
+              <lower_saturation_limit>0</lower_saturation_limit>
+              <upper_saturation_limit>1</upper_saturation_limit>
+            </property>
+          </properties>
+        </phase>
+      </phases>
+      <properties>
+        <property>
+          <name>reference_temperature</name>
+          <type>Constant</type>
+          <value>293.15</value>
+        </property>
+        <property>
+          <name>saturation</name>
+          <type>SaturationVanGenuchten</type>
+          <residual_liquid_saturation>0.0</residual_liquid_saturation>
+          <residual_gas_saturation>0</residual_gas_saturation>
+          <exponent>0.375</exponent>
+          <p_b>1.3429e+06</p_b>
+        </property>
+        <property>
+          <name>relative_permeability</name>
+          <type>RelPermBrooksCoreyRM</type>
+          <min_relative_permeability_gas>0.0</min_relative_permeability_gas>
+          <min_relative_permeability_liquid>0.0001</min_relative_permeability_liquid>
+          <lambda>3</lambda>
+          <residual_gas_saturation>0.0</residual_gas_saturation>
+          <residual_liquid_saturation>0.0</residual_liquid_saturation>
+        </property>
+        <property>
+          <name>bishops_effective_stress</name>
+          <type>BishopsPowerLaw</type>
+          <exponent>1</exponent>
+          <!--
+<type>BishopsSaturationCutoff</type>
+<cutoff_value>0.001</cutoff_value> -->
+        </property>
+      </properties>
+    </medium>
+    <medium id="1">
+      <phases>
+        <phase>
+          <type>AqueousLiquid</type>
+          <properties>
+            <property>
+              <name>bulk_modulus</name>
+              <type>Constant</type>
+              <value>1e9</value>
+            </property>
+            <property>
+              <name>density</name>
+              <type>Constant</type>
+              <value>1e3</value>
+            </property>
+            <property>
+              <name>viscosity</name>
+              <type>Constant</type>
+              <value>1e-3</value>
+            </property>
+          </properties>
+        </phase>
+        <phase>
+          <type>Solid</type>
+          <properties>
+            <property>
+              <name>density</name>
+              <type>Constant</type>
+              <value>2143.54</value>
+            </property>
+            <property>
+              <name>biot_coefficient</name>
+              <type>Constant</type>
+              <value>0.8</value>
+              <!-- 11/12=0.91666666666666666667 -->
+            </property>
+            <!--
+<property>
+<name>permeability</name>
+<type>Constant</type>
+<value>1e-19</value>
+</property>
+-->
+            <property>
+              <name>permeability</name>
+              <type>PermeabilityOrthotropicPowerLaw</type>
+              <intrinsic_permeabilities>1.5e-20 1.5e-20</intrinsic_permeabilities>
+              <exponents>10 10</exponents>
+            </property>
+            <property>
+              <name>porosity</name>
+              <type>PorosityFromMassBalance</type>
+              <initial_porosity>phi01</initial_porosity>
+              <minimal_porosity>0</minimal_porosity>
+              <maximal_porosity>1</maximal_porosity>
+            </property>
+            <property>
+              <name>transport_porosity</name>
+              <type>TransportPorosityFromMassBalance</type>
+              <initial_porosity>phi_tr01</initial_porosity>
+              <minimal_porosity>0</minimal_porosity>
+              <maximal_porosity>1</maximal_porosity>
+            </property>
+            <property>
+              <name>swelling_stress_rate</name>
+              <type>SaturationDependentSwelling</type>
+              <swelling_pressures>6.5e6 6.5e6 6.5e6</swelling_pressures>
+              <exponents>1 1.0 1</exponents>
+              <lower_saturation_limit>0</lower_saturation_limit>
+              <upper_saturation_limit>1</upper_saturation_limit>
+            </property>
+            <test_node test_attribute_1="test_value_1" test_attribute_2="test_value_2">testtext</test_node>
+          </properties>
+        </phase>
+      </phases>
+      <properties>
+        <property>
+          <name>reference_temperature</name>
+          <type>Constant</type>
+          <value>293.15</value>
+        </property>
+        <property>
+          <name>saturation</name>
+          <type>SaturationVanGenuchten</type>
+          <residual_liquid_saturation>0.0</residual_liquid_saturation>
+          <residual_gas_saturation>0</residual_gas_saturation>
+          <exponent>0.17</exponent>
+          <p_b>4.5e6</p_b>
+        </property>
+        <property>
+          <name>relative_permeability</name>
+          <type>RelPermBrooksCoreyRM</type>
+          <min_relative_permeability_gas>0.0</min_relative_permeability_gas>
+          <min_relative_permeability_liquid>0.0001</min_relative_permeability_liquid>
+          <lambda>3</lambda>
+          <residual_gas_saturation>0.0</residual_gas_saturation>
+          <residual_liquid_saturation>0.0</residual_liquid_saturation>
+        </property>
+        <property>
+          <name>bishops_effective_stress</name>
+          <type>BishopsPowerLaw</type>
+          <exponent>1</exponent>
+          <!--
+<type>BishopsSaturationCutoff</type>
+<cutoff_value>0.001</cutoff_value> -->
+        </property>
+      </properties>
+    </medium>
+  </media>
+  <time_loop>
     <processes>
-        
-        
-        <process>
-            
-            
-            <name>RM</name>
-            
-            
-            <type>RICHARDS_MECHANICS</type>
-            
-            
-            <integration_order>4</integration_order>
-            
-            
-            <dimension>2</dimension>
-            
-            
-            <secondary_variables>
-                
-                
-                <secondary_variable type="static" internal_name="sigma" output_name="sigma"/>
-                
-                
-                <secondary_variable type="static" internal_name="epsilon" output_name="epsilon"/>
-                
-                
-                <secondary_variable type="static" internal_name="velocity" output_name="velocity"/>
-                
-                
-                <secondary_variable type="static" internal_name="ElasticStrain" output_name="ElasticStrain"/>
-                
-                
-                <secondary_variable type="static" internal_name="EquivalentPlasticStrain" output_name="EquivalentPlasticStrain"/>
-                
-                
-                <secondary_variable type="static" internal_name="saturation" output_name="saturation"/>
-                
-                
-                <secondary_variable internal_name="porosity" output_name="porosity"/>
-                
-                
-                <secondary_variable internal_name="transport_porosity" output_name="transport_porosity"/>
-                
-                
-                <secondary_variable internal_name="dry_density_solid" output_name="dry_density_solid"/>
-                
-                
-                <secondary_variable internal_name="swelling_stress" output_name="swelling_stress"/>
-                
-            
-            </secondary_variables>
-            
-            
-            <constitutive_relation id="0">
-                
-                
-                <type>MFront</type>
-                
-                
-                <behaviour>MohrCoulombAbboSloan</behaviour>
-                
-                
-                <material_properties>
-                    
-                    
-                    <material_property name="YoungModulus" parameter="YoungModulus0"/>
-                    
-                    
-                    <material_property name="PoissonRatio" parameter="PoissonRatio0"/>
-                    
-                    
-                    <material_property name="Cohesion" parameter="Cohesion0"/>
-                    
-                    
-                    <material_property name="FrictionAngle" parameter="FrictionAngle"/>
-                    
-                    
-                    <material_property name="DilatancyAngle" parameter="DilatancyAngle"/>
-                    
-                    
-                    <material_property name="TransitionAngle" parameter="TransitionAngle"/>
-                    
-                    
-                    <material_property name="TensionCutOffParameter" parameter="TensionCutOffParameter"/>
-                    
-                
-                </material_properties>
-                
-            
-            </constitutive_relation>
-            
-             
-            <constitutive_relation id="1">
-                
-                
-                <type>MFront</type>
-                
-                
-                <behaviour>MohrCoulombAbboSloan</behaviour>
-                
-                
-                <material_properties>
-                    
-                    
-                    <material_property name="YoungModulus" parameter="YoungModulus1"/>
-                    
-                    
-                    <material_property name="PoissonRatio" parameter="PoissonRatio1"/>
-                    
-                    
-                    <material_property name="Cohesion" parameter="Cohesion1"/>
-                    
-                    
-                    <material_property name="FrictionAngle" parameter="FrictionAngle"/>
-                    
-                    
-                    <material_property name="DilatancyAngle" parameter="DilatancyAngle"/>
-                    
-                    
-                    <material_property name="TransitionAngle" parameter="TransitionAngle"/>
-                    
-                    
-                    <material_property name="TensionCutOffParameter" parameter="TensionCutOffParameter"/>
-                    
-                
-                </material_properties>
-                
-            
-            </constitutive_relation>
-            
-            
-            <process_variables>
-                
-                
-                <pressure>pressure</pressure>
-                
-                
-                <displacement>displacement</displacement>
-                
-            
-            </process_variables>
-            
-			
-            <specific_body_force>0 0</specific_body_force>
-            
-            
-            <initial_stress>sigma0</initial_stress>
-            
-            
-            <mass_lumping>true</mass_lumping>
-            
-			
-        </process>
-        
-    
+      <process ref="RM">
+        <nonlinear_solver>basic_newton</nonlinear_solver>
+        <convergence_criterion>
+          <type>PerComponentDeltaX</type>
+          <norm_type>NORM2</norm_type>
+          <abstols>1e-5 1e-10 1e-10</abstols>
+          <!--abstols>1e-3 1e-10 1e-10</abstols-->
+        </convergence_criterion>
+        <compensate_non_equilibrium_initial_residuum>true</compensate_non_equilibrium_initial_residuum>
+        <time_discretization>
+          <type>BackwardEuler</type>
+        </time_discretization>
+        <time_stepping>
+          <type>IterationNumberBasedTimeStepping</type>
+          <t_initial>0.0</t_initial>
+          <!-- <t_end>360000</t_end> -->
+          <t_end>25920000</t_end>
+          <initial_dt>1.0</initial_dt>
+          <minimum_dt>0.000001</minimum_dt>
+          <maximum_dt>8.6400e+04</maximum_dt>
+          <number_iterations> 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 </number_iterations>
+          <multiplier> 1.5  1.45 1.39 1.34 1.29 1.24 1.18 1.13 1.08 1.03 0.97 0.92 0.87 0.82
+0.76</multiplier>
+        </time_stepping>
+      </process>
     </processes>
-    
-    
-    <media>
-        
-        
-        <medium id="0">
-            
-            
-            <phases>
-                
-                
-                <phase>
-                    
-                    
-                    <type>AqueousLiquid</type>
-                    
-                    
-                    <properties>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>bulk_modulus</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>1e9</value>
-                            
-                        
-                        </property>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>density</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>1e3</value>
-                            
-                        
-                        </property>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>viscosity</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>1e-3</value>
-                            
-                        
-                        </property>
-                        
-                    
-                    </properties>
-                    
-                
-                </phase>
-                
-                
-                <phase>
-                    
-                    
-                    <type>Solid</type>
-                    
-                    
-                    <properties>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>density</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>2127.27</value>
-                            
-                        
-                        </property>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>biot_coefficient</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>0.8</value>
-                             
-                        
-                        </property>
-                        
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>permeability</name>
-                            
-                            
-                            <type>PermeabilityOrthotropicPowerLaw</type>
-                            
-                            
-                            <intrinsic_permeabilities>1e-18 1e-18</intrinsic_permeabilities>
-                            
-                            
-                            <exponents>10 10</exponents>
-                            
-                        
-                        </property>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>porosity</name>
-                            
-                            
-                            <type>PorosityFromMassBalance</type>
-                            
-                            
-                            <initial_porosity>phi00</initial_porosity>
-                            
-                            
-                            <minimal_porosity>0</minimal_porosity>
-                            
-                            
-                            <maximal_porosity>1</maximal_porosity>
-                            
-                        
-                        </property>
-                        
-						
-                        <property>
-                            
-                            
-                            <name>transport_porosity</name>
-                            
-                            
-                            <type>TransportPorosityFromMassBalance</type>
-                            
-                            
-                            <initial_porosity>phi_tr00</initial_porosity>
-                            
-                            
-                            <minimal_porosity>0</minimal_porosity>
-                            
-                            
-                            <maximal_porosity>1</maximal_porosity>
-                            
-                        
-                        </property>
-                        
-						
-                        <property>
-                            
-                            
-                            <name>swelling_stress_rate</name>
-                            
-                            
-                            <type>SaturationDependentSwelling</type>
-                            
-                            
-                            <swelling_pressures>1.8e6 1.8e6 1.8e6</swelling_pressures>
-                            
-                            
-                            <exponents>1 1.0 1</exponents>
-                            
-                            
-                            <lower_saturation_limit>0</lower_saturation_limit>
-                            
-                            
-                            <upper_saturation_limit>1</upper_saturation_limit>
-                            
-                        
-                        </property>
-                        
-                    
-                    </properties>
-                    
-                
-                </phase>
-                
-            
-            </phases>
-            
-            
-            <properties>
-                
-                
-                <property>
-                    
-                    
-                    <name>reference_temperature</name>
-                    
-                    
-                    <type>Constant</type>
-                    
-                    
-                    <value>293.15</value>
-                    
-                
-                </property>
-                
-                
-                <property>
-                    
-                    
-                    <name>saturation</name>
-                    
-                    
-                    <type>SaturationVanGenuchten</type>
-                    
-                    
-                    <residual_liquid_saturation>0.0</residual_liquid_saturation>
-                    
-                    
-                    <residual_gas_saturation>0</residual_gas_saturation>
-                    
-                    
-                    <exponent>0.375</exponent>
-                    
-                    
-                    <p_b>1.3429e+06</p_b>
-                    
-                
-                </property>
-                
-                
-                <property>
-                    
-                    
-                    <name>relative_permeability</name>
-                    
-                    
-                    <type>RelPermBrooksCoreyRM</type>
-                    
-                    
-                    <min_relative_permeability_gas>0.0</min_relative_permeability_gas>
-                    
-                    
-                    <min_relative_permeability_liquid>0.0001</min_relative_permeability_liquid>
-                    
-                    
-                    <lambda>3</lambda>
-                    
-                    
-                    <residual_gas_saturation>0.0</residual_gas_saturation>
-                    
-                    
-                    <residual_liquid_saturation>0.0</residual_liquid_saturation>
-                    
-                
-                </property>
-                
-                
-                <property>
-                    
-                    
-                    <name>bishops_effective_stress</name>
-                    
-                    
-                    <type>BishopsPowerLaw</type>
-                    
-                    
-                    <exponent>1</exponent>
-                    
-                    
-                
-                </property>
-                
-            
-            </properties>
-            
-        
-        </medium>
-        
-        
-        <medium id="1">
-            
-            
-            <phases>
-                
-                
-                <phase>
-                    
-                    
-                    <type>AqueousLiquid</type>
-                    
-                    
-                    <properties>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>bulk_modulus</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>1e9</value>
-                            
-                        
-                        </property>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>density</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>1e3</value>
-                            
-                        
-                        </property>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>viscosity</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>1e-3</value>
-                            
-                        
-                        </property>
-                        
-                    
-                    </properties>
-                    
-                
-                </phase>
-                
-                
-                <phase>
-                    
-                    
-                    <type>Solid</type>
-                    
-                    
-                    <properties>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>density</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>2143.54</value>
-                            
-                        
-                        </property>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>biot_coefficient</name>
-                            
-                            
-                            <type>Constant</type>
-                            
-                            
-                            <value>0.8</value>
-                             
-                        
-                        </property>
-                        
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>permeability</name>
-                            
-                            
-                            <type>PermeabilityOrthotropicPowerLaw</type>
-                            
-                            
-                            <intrinsic_permeabilities>1.5e-20 1.5e-20</intrinsic_permeabilities>
-                            
-                            
-                            <exponents>10 10</exponents>
-                            
-                        
-                        </property>
-                        
-                        
-                        <property>
-                            
-                            
-                            <name>porosity</name>
-                            
-                            
-                            <type>PorosityFromMassBalance</type>
-                            
-                            
-                            <initial_porosity>phi01</initial_porosity>
-                            
-                            
-                            <minimal_porosity>0</minimal_porosity>
-                            
-                            
-                            <maximal_porosity>1</maximal_porosity>
-                            
-                        
-                        </property>
-                        
-						
-                        <property>
-                            
-                            
-                            <name>transport_porosity</name>
-                            
-                            
-                            <type>TransportPorosityFromMassBalance</type>
-                            
-                            
-                            <initial_porosity>phi_tr01</initial_porosity>
-                            
-                            
-                            <minimal_porosity>0</minimal_porosity>
-                            
-                            
-                            <maximal_porosity>1</maximal_porosity>
-                            
-                        
-                        </property>
-                        
-						
-                        <property>
-                            
-                            
-                            <name>swelling_stress_rate</name>
-                            
-                            
-                            <type>SaturationDependentSwelling</type>
-                            
-                            
-                            <swelling_pressures>6.5e6 6.5e6 6.5e6</swelling_pressures>
-                            
-                            
-                            <exponents>1 1.0 1</exponents>
-                            
-                            
-                            <lower_saturation_limit>0</lower_saturation_limit>
-                            
-                            
-                            <upper_saturation_limit>1</upper_saturation_limit>
-                            
-                        
-                        </property>
-                        
-                    
-                    </properties>
-                    
-                
-                </phase>
-                
-            
-            </phases>
-            
-            
-            <properties>
-                
-                
-                <property>
-                    
-                    
-                    <name>reference_temperature</name>
-                    
-                    
-                    <type>Constant</type>
-                    
-                    
-                    <value>293.15</value>
-                    
-                
-                </property>
-                
-                
-                <property>
-                    
-                    
-                    <name>saturation</name>
-                    
-                    
-                    <type>SaturationVanGenuchten</type>
-                    
-                    
-                    <residual_liquid_saturation>0.0</residual_liquid_saturation>
-                    
-                    
-                    <residual_gas_saturation>0</residual_gas_saturation>
-                    
-                    
-                    <exponent>0.17</exponent>
-                    
-                    
-                    <p_b>4.5e6</p_b>
-                    
-                
-                </property>
-                
-                 
-                <property>
-                    
-                    
-                    <name>relative_permeability</name>
-                    
-                    
-                    <type>RelPermBrooksCoreyRM</type>
-                    
-                    
-                    <min_relative_permeability_gas>0.0</min_relative_permeability_gas>
-                    
-                    
-                    <min_relative_permeability_liquid>0.0001</min_relative_permeability_liquid>
-                    
-                    
-                    <lambda>3</lambda>
-                    
-                    
-                    <residual_gas_saturation>0.0</residual_gas_saturation>
-                    
-                    
-                    <residual_liquid_saturation>0.0</residual_liquid_saturation>
-                    
-                
-                </property>
-                
-               
-                <property>
-                    
-                    
-                    <name>bishops_effective_stress</name>
-                    
-                    
-                    <type>BishopsPowerLaw</type>
-                    
-                    
-                    <exponent>1</exponent>
-                    
-                    
-                
-                </property>
-                
-            
-            </properties>
-            
-        
-        </medium>
-        
-    
-    </media>
-             
-    
-    <time_loop>
-        
-        
-        <processes>
-            
-            
-            <process ref="RM">
-                
-                
-                <nonlinear_solver>basic_newton</nonlinear_solver>
-                
-                
-                <convergence_criterion>
-                    
-                    
-                    <type>PerComponentDeltaX</type>
-                    
-                    
-                    <norm_type>NORM2</norm_type>
-                    
-                    
-                    <abstols>1e-5 1e-10 1e-10</abstols>
-                    
-                    
-                
-                </convergence_criterion>
-                
-
-                <compensate_non_equilibrium_initial_residuum>true</compensate_non_equilibrium_initial_residuum>
-                
-                
-                <time_discretization>
-                    
-                    
-                    <type>BackwardEuler</type>
-                    
-                
-                </time_discretization>
-                
-                
-                <time_stepping>
-                    
-                    
-                    <type>IterationNumberBasedTimeStepping</type>
-                    
-                    
-                    <t_initial>0.0</t_initial>
-                    
-                    
-                    
-                    <t_end>25920000</t_end>
-                     
-                    
-                    <initial_dt>1.0</initial_dt>
-                    
-                    
-                    <minimum_dt>0.000001</minimum_dt>
-                    
-                    
-                    <maximum_dt>8.6400e+04</maximum_dt>
-                    
-                    
-                    <number_iterations> 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 </number_iterations>
-                    
-                    
-                    <multiplier> 1.5  1.45 1.39 1.34 1.29 1.24 1.18 1.13 1.08 1.03 0.97 0.92 0.87 0.82
- 0.76</multiplier>
-                    
-                
-                </time_stepping>
-                
-            
-            </process>
-            
-        
-        </processes>
-        
-        
-        <output>
-            
-            
-            <type>VTK</type>
-            
-            
-            <prefix>out_T5_MGR23</prefix>
-            
-			
-            <suffix>_ts_{:timestep}_t_{:time}</suffix>
-            
-            
-            <timesteps>
-                
-                
-                <pair>
-                    
-                    
-                    <repeat>50000</repeat>
-                    
-                    
-                    <each_steps>50</each_steps>
-                    
-                
-                </pair>
-                
-                
-                <pair>
-                    
-                    
-                    <repeat>1000</repeat>
-                    
-                    
-                    <each_steps>10</each_steps>
-                    
-                
-                </pair>
-                
-            
-            </timesteps>
-            
-            
-            <variables>
-                
-                
-                <variable>displacement</variable>
-                
-                
-                <variable>pressure</variable>
-                
-                
-                <variable>sigma</variable>
-                
-                
-                <variable>epsilon</variable>
-                
-                
-                <variable>velocity</variable>
-                
-                
-                <variable>saturation</variable>
-                
-                
-                <variable>porosity</variable>
-                
-                
-                <variable>transport_porosity</variable>
-                
-                
-                <variable>dry_density_solid</variable>
-                
-                
-                <variable>swelling_stress</variable>
-                
-            
-            </variables>
-            
-            
-            <output_iteration_results>false</output_iteration_results>
-            
-            
-            <fixed_output_times>3.60000e+03 7.20000e+03 1.08000e+04 1.44000e+04 1.80000e+04 2.16000e+04
- 2.52000e+04 2.88000e+04 3.24000e+04 3.60000e+04 3.96000e+04 4.32000e+04
- 4.68000e+04 5.04000e+04 5.40000e+04 5.76000e+04 6.12000e+04 6.48000e+04
- 6.84000e+04 7.20000e+04 7.56000e+04 7.92000e+04 8.28000e+04 8.64000e+04
- 3.45600e+05 6.04800e+05 8.64000e+05 1.12320e+06 1.38240e+06 1.64160e+06
- 1.90080e+06 2.16000e+06 2.41920e+06 2.67840e+06 2.93760e+06 3.19680e+06
- 3.45600e+06 3.71520e+06 3.97440e+06 4.23360e+06 4.49280e+06 4.75200e+06
- 5.01120e+06 5.27040e+06 5.52960e+06 5.78880e+06 6.04800e+06 6.30720e+06
- 6.56640e+06 6.82560e+06 7.08480e+06 7.34400e+06 7.60320e+06 7.86240e+06
- 8.12160e+06 8.38080e+06 8.64000e+06 8.89920e+06 9.15840e+06 9.41760e+06
- 9.67680e+06 9.93600e+06 1.01952e+07 1.04544e+07 1.07136e+07 1.09728e+07
- 1.12320e+07 1.14912e+07 1.18368e+07 1.20960e+07 1.23552e+07 1.26144e+07
- 1.28736e+07 1.31328e+07 1.33920e+07 1.36512e+07 1.39104e+07 1.41696e+07
- 1.44288e+07 1.46880e+07 1.49472e+07 1.52064e+07 1.54656e+07 1.57248e+07
- 1.59840e+07 1.62432e+07 1.65024e+07 1.67616e+07 1.70208e+07 1.72800e+07
- 1.75392e+07 1.77984e+07 1.80576e+07 1.83168e+07 1.85760e+07 1.88352e+07
- 1.90944e+07 1.93536e+07 1.96128e+07 1.98720e+07 2.01312e+07 2.03904e+07
- 2.06496e+07 2.09088e+07 2.11680e+07 2.14272e+07 2.16864e+07 2.19456e+07
- 2.22048e+07 2.24640e+07 2.27232e+07 2.29824e+07 2.33280e+07</fixed_output_times>
-            
-        
-        </output>
-        
-    
-    </time_loop>
-    
-    
-    <parameters>
-        
-        
-        <parameter>
-            
-            
-            <name>sigma0</name>
-            
-            
-            <type>Function</type>
-            
-            
-            <expression>0</expression>
-            
-            
-            <expression>0</expression>
-            
-            
-            <expression>0</expression>
-            
-            
-            <expression>0</expression>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>YoungModulus0</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>50e6</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>PoissonRatio0</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0.2</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>YoungModulus1</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>80e6</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>PoissonRatio1</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0.2</value>
-            
-        
-        </parameter>
-        
-        
-		
-        <parameter>
-            
-            
-            <name>phi00</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0.3889</value>
-            
-        
-        </parameter>
-        
-		
-        <parameter>
-            
-            
-            <name>phi_tr00</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0.3889</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>phi01</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0.2536</value>
-            
-        
-        </parameter>
-        
-		
-        <parameter>
-            
-            
-            <name>phi_tr01</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0.2536</value>
-            
-        
-        </parameter>
-        
-        
-        
-        <parameter>
-            
-            
-            <name>Cohesion0</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0.5e6</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>Cohesion1</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>1.5e6</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>FrictionAngle</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>15</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>DilatancyAngle</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>5</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>TransitionAngle</name>
-            
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>25</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>TensionCutOffParameter</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0.46e6</value>
-            
-        
-        </parameter>
-        
-        
-        
-        <parameter>
-            
-            
-            <name>icp</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>-7.4224e7</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>displacement0</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <values>0 0</values>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>pressure_ic</name>
-            
-            
-            <type>MeshNode</type>
-            
-            
-            <field_name>pressure</field_name>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>dirichlet_pressure</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>1</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>dirichlet0</name>
-            
-            
-            <type>Constant</type>
-            
-            
-            <value>0</value>
-            
-        
-        </parameter>
-        
-        
-        <parameter>
-            
-            
-            <name>dirichlet_pressure_ramp</name>
-            
-            
-            <type>CurveScaled</type>
-            
-            
-            <curve>pressure_ramp</curve>
-            
-            
-            <parameter>dirichlet_pressure</parameter>
-            
-        
-        </parameter>
-        
-    
-    </parameters>
-    
-    
-    <curves>
-        
-        
-        <curve>
-            
-            
-            
-            <name>pressure_ramp</name>
-            
-            
-            <coords>0.0 10 86400 1e20</coords>
-            
-            
-            
-            <values>-7.4224e7 -7.4224e7 14e3 14e3</values>
-            
-	    
-        </curve>
-        
-    
-    </curves>
-    
-    
-    <process_variables>
-        
-        
-        <process_variable>
-            
-            
-            <name>displacement</name>
-            
-            
-            <components>2</components>
-            
-            
-            <order>2</order>
-            
-            
-            <initial_condition>displacement0</initial_condition>
-            
-            
-            <boundary_conditions>
-                
-                
-               
-                <boundary_condition>
-                    
-                    
-                    <geometrical_set>t5_MGR22</geometrical_set>
-                    
-                    
-                    <geometry>top_block</geometry>
-                    
-                    
-                    <type>Dirichlet</type>
-                    
-                    
-                    <component>1</component>
-                    
-                    
-                    <parameter>dirichlet0</parameter>
-                    
-                
-                </boundary_condition>
-                
-                
-                <boundary_condition>
-                    
-                    
-                    <geometrical_set>t5_MGR22</geometrical_set>
-                    
-                    
-                    <geometry>left</geometry>
-                    
-                    
-                    <type>Dirichlet</type>
-                    
-                    
-                    <component>0</component>
-                    
-                    
-                    <parameter>dirichlet0</parameter>
-                    
-                
-                </boundary_condition>
-                
-                
-                <boundary_condition>
-                    
-                    
-                    <geometrical_set>t5_MGR22</geometrical_set>
-                    
-                    
-                    <geometry>right</geometry>
-                    
-                    
-                    <type>Dirichlet</type>
-                    
-                    
-                    <component>0</component>
-                    
-                    
-                    <parameter>dirichlet0</parameter>
-                    
-                
-                </boundary_condition>
-                
-                
-                <boundary_condition>
-                    
-                    
-                    <geometrical_set>t5_MGR22</geometrical_set>
-                    
-                    
-                    <geometry>bottom</geometry>
-                    
-                    
-                    <type>Dirichlet</type>
-                    
-                    
-                    <component>1</component>
-                    
-                    
-                    <parameter>dirichlet0</parameter>
-                    
-                
-                </boundary_condition>
-                 
-            
-            </boundary_conditions>
-            
-        
-        </process_variable>
-        
-        
-        <process_variable>
-            
-            
-            <name>pressure</name>
-            
-            
-            <components>1</components>
-            
-            
-            <order>1</order>
-            
-            
-            <initial_condition>pressure_ic</initial_condition>
-            
-            
-            <boundary_conditions>
-                
-                
-                
-                <boundary_condition>
-                    
-                    
-                    <geometrical_set>t5_MGR22</geometrical_set>
-                    
-                    
-                    <geometry>bottom</geometry>
-                    
-                    
-                    <type>Dirichlet</type>
-                    
-                    
-                    <component>0</component>
-                    
-                    
-                    <parameter>dirichlet_pressure_ramp</parameter>
-                    
-                
-                </boundary_condition>
-                
-                
-                <boundary_condition>
-                    
-                    
-                    <geometrical_set>t5_MGR22</geometrical_set>
-                    
-                    
-                    <geometry>top_block</geometry>
-                    
-                    
-                    <type>Neumann</type>
-                    
-                    
-                    <component>0</component>
-                    
-                    
-                    <parameter>dirichlet0</parameter>
-                    
-                
-                </boundary_condition>
-                
-            
-            </boundary_conditions>
-            
-        
-        </process_variable>
-        
-    
-    </process_variables>
-    
-    
-    <nonlinear_solvers>
-        
-        
-        <nonlinear_solver>
-            
-            
-            <name>basic_newton</name>
-            
-            
-            <type>Newton</type>
-            
-            
-            <max_iter>30</max_iter>
-            
-            
-            <linear_solver>general_linear_solver</linear_solver>
-            
-        
-        </nonlinear_solver>
-        
-    
-    </nonlinear_solvers>
-    
-    
-    <linear_solvers>
-        
-        
-        <linear_solver>
-            
-            
-            <name>general_linear_solver</name>
-            
-            
-            <eigen>
-                
-               
-                <solver_type>SparseLU</solver_type>
-                
-                
-                <scaling>true</scaling>
-                
-			
-            
-            </eigen>
-            
-        
-        </linear_solver>
-        
-    
-    </linear_solvers>
-    
-
+    <output>
+      <type>VTK</type>
+      <prefix>out_T5_MGR23</prefix>
+      <suffix>_ts_{:timestep}_t_{:time}</suffix>
+      <timesteps>
+        <pair>
+          <repeat>50000</repeat>
+          <each_steps>50</each_steps>
+        </pair>
+        <pair>
+          <repeat>1000</repeat>
+          <each_steps>10</each_steps>
+        </pair>
+      </timesteps>
+      <variables>
+        <variable>displacement</variable>
+        <variable>pressure</variable>
+        <variable>sigma</variable>
+        <variable>epsilon</variable>
+        <variable>velocity</variable>
+        <variable>saturation</variable>
+        <variable>porosity</variable>
+        <variable>transport_porosity</variable>
+        <variable>dry_density_solid</variable>
+        <variable>swelling_stress</variable>
+      </variables>
+      <output_iteration_results>false</output_iteration_results>
+      <fixed_output_times>3.60000e+03 7.20000e+03 1.08000e+04 1.44000e+04 1.80000e+04 2.16000e+04
+2.52000e+04 2.88000e+04 3.24000e+04 3.60000e+04 3.96000e+04 4.32000e+04
+4.68000e+04 5.04000e+04 5.40000e+04 5.76000e+04 6.12000e+04 6.48000e+04
+6.84000e+04 7.20000e+04 7.56000e+04 7.92000e+04 8.28000e+04 8.64000e+04
+3.45600e+05 6.04800e+05 8.64000e+05 1.12320e+06 1.38240e+06 1.64160e+06
+1.90080e+06 2.16000e+06 2.41920e+06 2.67840e+06 2.93760e+06 3.19680e+06
+3.45600e+06 3.71520e+06 3.97440e+06 4.23360e+06 4.49280e+06 4.75200e+06
+5.01120e+06 5.27040e+06 5.52960e+06 5.78880e+06 6.04800e+06 6.30720e+06
+6.56640e+06 6.82560e+06 7.08480e+06 7.34400e+06 7.60320e+06 7.86240e+06
+8.12160e+06 8.38080e+06 8.64000e+06 8.89920e+06 9.15840e+06 9.41760e+06
+9.67680e+06 9.93600e+06 1.01952e+07 1.04544e+07 1.07136e+07 1.09728e+07
+1.12320e+07 1.14912e+07 1.18368e+07 1.20960e+07 1.23552e+07 1.26144e+07
+1.28736e+07 1.31328e+07 1.33920e+07 1.36512e+07 1.39104e+07 1.41696e+07
+1.44288e+07 1.46880e+07 1.49472e+07 1.52064e+07 1.54656e+07 1.57248e+07
+1.59840e+07 1.62432e+07 1.65024e+07 1.67616e+07 1.70208e+07 1.72800e+07
+1.75392e+07 1.77984e+07 1.80576e+07 1.83168e+07 1.85760e+07 1.88352e+07
+1.90944e+07 1.93536e+07 1.96128e+07 1.98720e+07 2.01312e+07 2.03904e+07
+2.06496e+07 2.09088e+07 2.11680e+07 2.14272e+07 2.16864e+07 2.19456e+07
+2.22048e+07 2.24640e+07 2.27232e+07 2.29824e+07 2.33280e+07</fixed_output_times>
+    </output>
+  </time_loop>
+  <parameters>
+    <parameter>
+      <name>sigma0</name>
+      <type>Function</type>
+      <expression>0</expression>
+      <expression>0</expression>
+      <expression>0</expression>
+      <expression>0</expression>
+    </parameter>
+    <parameter>
+      <name>YoungModulus0</name>
+      <type>Constant</type>
+      <value>50e6</value>
+    </parameter>
+    <parameter>
+      <name>PoissonRatio0</name>
+      <type>Constant</type>
+      <value>0.2</value>
+    </parameter>
+    <parameter>
+      <name>YoungModulus1</name>
+      <type>Constant</type>
+      <value>80e6</value>
+    </parameter>
+    <parameter>
+      <name>PoissonRatio1</name>
+      <type>Constant</type>
+      <value>0.2</value>
+    </parameter>
+    <!-- Porosity -->
+    <parameter>
+      <name>phi00</name>
+      <type>Constant</type>
+      <value>0.3889</value>
+    </parameter>
+    <parameter>
+      <name>phi_tr00</name>
+      <type>Constant</type>
+      <value>0.3889</value>
+    </parameter>
+    <parameter>
+      <name>phi01</name>
+      <type>Constant</type>
+      <value>0.2536</value>
+    </parameter>
+    <parameter>
+      <name>phi_tr01</name>
+      <type>Constant</type>
+      <value>0.2536</value>
+    </parameter>
+    <!-- Mohr Coulomb parameters -->
+    <parameter>
+      <name>Cohesion0</name>
+      <type>Constant</type>
+      <value>0.5e6</value>
+    </parameter>
+    <parameter>
+      <name>Cohesion1</name>
+      <type>Constant</type>
+      <value>1.5e6</value>
+    </parameter>
+    <parameter>
+      <name>FrictionAngle</name>
+      <type>Constant</type>
+      <value>15</value>
+    </parameter>
+    <parameter>
+      <name>DilatancyAngle</name>
+      <type>Constant</type>
+      <value>5</value>
+    </parameter>
+    <parameter>
+      <name>TransitionAngle</name>
+      <!--TransitionAngle=25.0, according to Abbo & Sloan, 1995, Computers and Structures -->
+      <type>Constant</type>
+      <value>25</value>
+    </parameter>
+    <parameter>
+      <name>TensionCutOffParameter</name>
+      <type>Constant</type>
+      <value>0.46e6</value>
+    </parameter>
+    <!-- BC parameters -->
+    <parameter>
+      <name>icp</name>
+      <type>Constant</type>
+      <value>-7.4224e7</value>
+    </parameter>
+    <parameter>
+      <name>displacement0</name>
+      <type>Constant</type>
+      <values>0 0</values>
+    </parameter>
+    <parameter>
+      <name>pressure_ic</name>
+      <type>MeshNode</type>
+      <field_name>pressure</field_name>
+    </parameter>
+    <parameter>
+      <name>dirichlet_pressure</name>
+      <type>Constant</type>
+      <value>1</value>
+    </parameter>
+    <parameter>
+      <name>dirichlet0</name>
+      <type>Constant</type>
+      <value>0</value>
+    </parameter>
+    <parameter>
+      <name>dirichlet_pressure_ramp</name>
+      <type>CurveScaled</type>
+      <curve>pressure_ramp</curve>
+      <parameter>dirichlet_pressure</parameter>
+    </parameter>
+  </parameters>
+  <curves>
+    <curve>
+      <!-- not documented in table -->
+      <name>pressure_ramp</name>
+      <coords>0.0 10 86400 1e20</coords>
+      <!-- <values>14e3 14e3 14e3 14e3</values> -->
+      <values>-7.4224e7 -7.4224e7 14e3 14e3</values>
+    </curve>
+  </curves>
+  <process_variables>
+    <process_variable>
+      <name>displacement</name>
+      <components>2</components>
+      <order>2</order>
+      <initial_condition>displacement0</initial_condition>
+      <boundary_conditions>
+        <!-- Normal homogeneous Dirichlet Conditions everywhere else -->
+        <boundary_condition>
+          <geometrical_set>t5_MGR22</geometrical_set>
+          <geometry>top_block</geometry>
+          <type>Dirichlet</type>
+          <component>1</component>
+          <parameter>dirichlet0</parameter>
+        </boundary_condition>
+        <boundary_condition>
+          <geometrical_set>t5_MGR22</geometrical_set>
+          <geometry>left</geometry>
+          <type>Dirichlet</type>
+          <component>0</component>
+          <parameter>dirichlet0</parameter>
+        </boundary_condition>
+        <boundary_condition>
+          <geometrical_set>t5_MGR22</geometrical_set>
+          <geometry>right</geometry>
+          <type>Dirichlet</type>
+          <component>0</component>
+          <parameter>dirichlet0</parameter>
+        </boundary_condition>
+        <boundary_condition>
+          <geometrical_set>t5_MGR22</geometrical_set>
+          <geometry>bottom</geometry>
+          <type>Dirichlet</type>
+          <component>1</component>
+          <parameter>dirichlet0</parameter>
+        </boundary_condition>
+      </boundary_conditions>
+    </process_variable>
+    <process_variable>
+      <name>pressure</name>
+      <components>1</components>
+      <order>1</order>
+      <initial_condition>pressure_ic</initial_condition>
+      <boundary_conditions>
+        <!-- Constant pressure bottom -->
+        <boundary_condition>
+          <geometrical_set>t5_MGR22</geometrical_set>
+          <geometry>bottom</geometry>
+          <type>Dirichlet</type>
+          <component>0</component>
+          <parameter>dirichlet_pressure_ramp</parameter>
+        </boundary_condition>
+        <boundary_condition>
+          <geometrical_set>t5_MGR22</geometrical_set>
+          <geometry>top_block</geometry>
+          <type>Neumann</type>
+          <component>0</component>
+          <parameter>dirichlet0</parameter>
+        </boundary_condition>
+      </boundary_conditions>
+    </process_variable>
+  </process_variables>
+  <nonlinear_solvers>
+    <nonlinear_solver>
+      <name>basic_newton</name>
+      <type>Newton</type>
+      <max_iter>30</max_iter>
+      <linear_solver>general_linear_solver</linear_solver>
+    </nonlinear_solver>
+  </nonlinear_solvers>
+  <linear_solvers>
+    <linear_solver>
+      <name>general_linear_solver</name>
+      <eigen>
+        <solver_type>SparseLU</solver_type>
+        <scaling>true</scaling>
+        <!--<solver_type>PardisoLU</solver_type>-->
+      </eigen>
+    </linear_solver>
+  </linear_solvers>
 </OpenGeoSysProject>
