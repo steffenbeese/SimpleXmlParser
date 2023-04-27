@@ -14,7 +14,7 @@ class SimpleXmlParser:
         self.tree = ET.parse(self.xml_file,parser)
         self.root = self.tree.getroot()
 
-    def addAttribute(self, node: ET.Element, attribute: str, value: str, path: str=""):
+    def addAttribute(self, node: ET.Element=None, attribute: str="V", value: str="0.0", path: str=""):
         '''
             Adds an attribute to a node.
         '''
