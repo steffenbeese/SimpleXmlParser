@@ -61,6 +61,14 @@ class SimpleXmlParser:
         '''
         return self.root.find(path)
     
+    def removeNodeByPath(self, path: str):
+        '''
+            Removes a node by a path.
+        '''
+        node = self.getNodeByPath(path)
+        parent = node.getparent()
+        parent.remove(node)
+    
     def replaceNodeText(self, node: ET.Element=None, text: str="", path: str=""):
         '''
             Replaces the text of a node.
